@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -19,17 +18,17 @@ public class LocalDatabaseActivity extends AppCompatActivity {
     private TextView text_name, text_data;
     private Button btn_save, btn_get;
 
-   /* @Override
+    @Override
     protected void onStart() {
-       super.onStart();
-    }*/
+        super.onStart();
+        myDatabase = openOrCreateDatabase("Test", MODE_PRIVATE, null);
+        myDatabase.execSQL("CREATE TABLE IF NOT EXISTS labClass(name VARCHAR,data VARCHAR);");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_local_database);
-        myDatabase = openOrCreateDatabase("Test", MODE_PRIVATE, null);
-        myDatabase.execSQL("CREATE TABLE IF NOT EXISTS labClass(name VARCHAR,data VARCHAR);");
         edt_name = findViewById(R.id.name);
         edt_data = findViewById(R.id.data);
         text_name = findViewById(R.id.last_name);
@@ -38,35 +37,30 @@ public class LocalDatabaseActivity extends AppCompatActivity {
         btn_save = findViewById(R.id.btn_save);
 
 
-        btn_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!edt_name.getText().toString().isEmpty() && !edt_data.getText().toString().isEmpty()) {
-                    try {
-                        ContentValues values = new ContentValues();
-                        values.put("name", String.valueOf(edt_name.getText()));
-                        values.put("data", String.valueOf(edt_data.getText()));
-                        myDatabase.insert("labClass", null, values);
-                    } catch (Exception e) {
-                        Log.d("ERROR", e.getMessage());
-                    }
-                } else
-                    Toast.makeText(LocalDatabaseActivity.this, "Check name or Data", Toast.LENGTH_SHORT).show();
-            }
+        btn_save.setOnClickListener(v -> {
+            if (!edt_name.getText().toString().isEmpty() && !edt_data.getText().toString().isEmpty()) {
+                try {
+                    ContentValues values = new ContentValues();
+                    values.put("name", String.valueOf(edt_name.getText()));
+                    values.put("data", String.valueOf(edt_data.getText()));
+                    myDatabase.insert("labClass", null, values);
+                } catch (Exception e) {
+                    Log.d("ERROR", e.getMessage());
+                }
+            } else
+                Toast.makeText(LocalDatabaseActivity.this, "Check name or Data", Toast.LENGTH_SHORT).show();
         });
 
-        btn_get.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Cursor resultSet = myDatabase.rawQuery("Select * from labClass", null);
-                resultSet.moveToLast();
-                if (resultSet.getCount() != 0) {
-                    String name = resultSet.getString(0);
-                    String data = resultSet.getString(1);
-                    text_name.setText(name);
-                    text_data.setText(data);
-                }
+        btn_get.setOnClickListener(v -> {
+            Cursor resultSet = myDatabase.rawQuery("Select * from labClass", null);
+            resultSet.moveToLast();
+            if (resultSet.getCount() != 0) {
+                String name = resultSet.getString(0);
+                String data = resultSet.getString(1);
+                text_name.setText(name);
+                text_data.setText(data);
             }
+            resultSet.close();
         });
     }
 }
